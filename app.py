@@ -23,82 +23,182 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Disease classes ────────────────────────────────────────────────────────────
+# ── Disease classes (All 15 PlantVillage Categories) ─────────────────────────
 CLASS_NAMES = [
-    "Healthy",
+    "Pepper Bell Bacterial Spot",
+    "Pepper Bell Healthy",
+    "Potato Early Blight",
+    "Potato Healthy",
+    "Potato Late Blight",
+    "Tomato Bacterial Spot",
     "Tomato Early Blight",
+    "Tomato Healthy",
     "Tomato Late Blight",
     "Tomato Leaf Mold",
-    "Potato Early Blight",
-    "Potato Late Blight",
+    "Tomato Mosaic Virus",
+    "Tomato Septoria Leaf Spot",
+    "Tomato Spider Mites",
+    "Tomato Target Spot",
+    "Tomato Yellow Leaf Curl Virus",
 ]
 
 # ── Precautions / advice per class ────────────────────────────────────────────
 PRECAUTIONS = {
-    "Healthy": {
-        "status": "✅ Plant appears healthy!",
+    "Pepper Bell Bacterial Spot": {
+        "status": "⚠️ Pepper Bell Bacterial Spot Detected",
+        "color": "#f59e0b",
+        "tips": [
+            "Apply copper-based bactericide/fungicide according to label.",
+            "Water strictly at the soil level; avoid splashing wet soil on leaves.",
+            "Remove and discard severely spotted leaves.",
+            "Sterilize gardening shears and tools with 70% alcohol.",
+            "Practice 2-3 year crop rotation away from solanaceous plants.",
+        ],
+    },
+    "Pepper Bell Healthy": {
+        "status": "✅ Pepper Bell Plant Appears Healthy!",
         "color": "#22c55e",
         "tips": [
-            "Continue regular watering — avoid wetting foliage.",
-            "Maintain proper plant spacing for good air circulation.",
-            "Apply balanced fertiliser during the growing season.",
-            "Monitor leaves weekly for early signs of disease.",
-            "Remove weeds that compete for nutrients.",
-        ],
-    },
-    "Tomato Early Blight": {
-        "status": "⚠️ Tomato Early Blight Detected",
-        "color": "#f59e0b",
-        "tips": [
-            "Remove and destroy infected leaves immediately.",
-            "Apply copper-based fungicide as directed on the label.",
-            "Water at the base; avoid overhead irrigation.",
-            "Improve air circulation by pruning crowded stems.",
-            "Rotate crops — do not plant tomatoes in the same spot next year.",
-        ],
-    },
-    "Tomato Late Blight": {
-        "status": "🔴 Tomato Late Blight Detected",
-        "color": "#ef4444",
-        "tips": [
-            "Act immediately — late blight spreads very rapidly.",
-            "Remove ALL infected plant material and dispose away from garden.",
-            "Apply a systemic fungicide (e.g., mancozeb or chlorothalonil).",
-            "Avoid working among wet plants to limit spread.",
-            "Consider destroying severely infected plants to protect neighbours.",
-        ],
-    },
-    "Tomato Leaf Mold": {
-        "status": "⚠️ Tomato Leaf Mold Detected",
-        "color": "#f59e0b",
-        "tips": [
-            "Reduce humidity inside greenhouses with better ventilation.",
-            "Remove and dispose of affected leaves.",
-            "Apply approved fungicide for leaf mold control.",
-            "Space plants to improve airflow.",
-            "Avoid excess nitrogen fertilisation.",
+            "Maintain consistent soil moisture without waterlogging.",
+            "Ensure 6-8 hours of direct sunlight daily.",
+            "Apply balanced fertilizer with calcium to prevent blossom end rot.",
+            "Inspect underside of leaves weekly for early pests.",
         ],
     },
     "Potato Early Blight": {
         "status": "⚠️ Potato Early Blight Detected",
         "color": "#f59e0b",
         "tips": [
-            "Remove infected foliage as soon as spotted.",
-            "Apply mancozeb or chlorothalonil fungicide preventively.",
-            "Ensure adequate potassium nutrition.",
-            "Avoid excessive nitrogen which promotes lush, susceptible growth.",
-            "Rotate potato crops annually.",
+            "Prune infected lower foliage as soon as concentric rings appear.",
+            "Apply mancozeb or chlorothalonil protective fungicide.",
+            "Ensure adequate potassium and balanced nitrogen nutrition.",
+            "Mulch around plants to reduce soil splash during rain.",
+            "Rotate potato planting locations annually.",
+        ],
+    },
+    "Potato Healthy": {
+        "status": "✅ Potato Plant Appears Healthy!",
+        "color": "#22c55e",
+        "tips": [
+            "Hill soil around stems as plants grow to protect developing tubers.",
+            "Maintain even moisture, especially during tuber bulking.",
+            "Monitor regularly for Colorado potato beetles and aphids.",
+            "Harvest tubers on dry days and cure before storing.",
         ],
     },
     "Potato Late Blight": {
         "status": "🔴 Potato Late Blight Detected",
         "color": "#ef4444",
         "tips": [
-            "This is the same pathogen that caused the Irish Famine — act fast!",
-            "Apply systemic fungicide (metalaxyl + mancozeb) immediately.",
-            "Destroy infected haulms before harvest.",
-            "Harvest tubers during dry weather and inspect carefully.",
-            "Plant certified disease-free seed potatoes next season.",
+            "Urgent: Late blight destroys foliage and tubers very rapidly.",
+            "Apply systemic fungicide (metalaxyl or cymoxanil + mancozeb) immediately.",
+            "Cut and destroy haulms 2 weeks before harvest to prevent tuber rot.",
+            "Do not compost infected plant debris; seal in bags and discard.",
+            "Only plant certified disease-free seed potatoes next season.",
+        ],
+    },
+    "Tomato Bacterial Spot": {
+        "status": "⚠️ Tomato Bacterial Spot Detected",
+        "color": "#f59e0b",
+        "tips": [
+            "Apply fixed copper spray combined with mancozeb for synergistic effect.",
+            "Never work among tomato plants when leaves are wet.",
+            "Mulch heavily around the plant base to prevent soil bacteria splash.",
+            "Remove infected bottom foliage to improve air circulation.",
+        ],
+    },
+    "Tomato Early Blight": {
+        "status": "⚠️ Tomato Early Blight Detected",
+        "color": "#f59e0b",
+        "tips": [
+            "Remove and dispose of infected leaves with brown bullseye spots.",
+            "Apply copper or chlorothalonil fungicide every 7-10 days as directed.",
+            "Water at the base with drip irrigation or soaker hoses.",
+            "Prune lower suckers to maintain at least 12 inches of clearance from soil.",
+            "Rotate tomato plots for at least 3 years.",
+        ],
+    },
+    "Tomato Healthy": {
+        "status": "✅ Tomato Plant Appears Healthy!",
+        "color": "#22c55e",
+        "tips": [
+            "Continue deep, regular watering at the root zone.",
+            "Stake or cage plants to maintain strong upright growth and airflow.",
+            "Apply balanced tomato fertilizer with micronutrients.",
+            "Inspect weekly for hornworms and mite webs.",
+        ],
+    },
+    "Tomato Late Blight": {
+        "status": "🔴 Tomato Late Blight Detected",
+        "color": "#ef4444",
+        "tips": [
+            "Immediate action required — late blight can ruin a crop in days.",
+            "Remove and destroy all water-soaked lesions and affected stems.",
+            "Apply a systemic fungicide (e.g., chlorothalonil, copper, or mancozeb).",
+            "Avoid overhead watering and minimize canopy moisture.",
+            "Consider harvesting unaffected green tomatoes early if weather is humid.",
+        ],
+    },
+    "Tomato Leaf Mold": {
+        "status": "⚠️ Tomato Leaf Mold Detected",
+        "color": "#f59e0b",
+        "tips": [
+            "Significantly improve ventilation in greenhouses or enclosed tunnels.",
+            "Keep relative humidity below 85% around plant canopies.",
+            "Prune crowded inner stems to allow light penetration.",
+            "Apply sulfur or copper-based fungicide if mold persists.",
+        ],
+    },
+    "Tomato Mosaic Virus": {
+        "status": "🔴 Tomato Mosaic Virus (ToMV) Detected",
+        "color": "#ef4444",
+        "tips": [
+            "Viral disease: There is NO chemical cure once infected.",
+            "Remove and burn/bag infected plants immediately to protect neighbors.",
+            "Never smoke or handle tobacco near tomato plants (tobacco transmits ToMV).",
+            "Disinfect hands and all garden tools in 20% nonfat dry milk solution.",
+            "Plant ToMV-resistant tomato varieties in future seasons.",
+        ],
+    },
+    "Tomato Septoria Leaf Spot": {
+        "status": "⚠️ Tomato Septoria Leaf Spot Detected",
+        "color": "#f59e0b",
+        "tips": [
+            "Prune infected leaves starting from the bottom of the plant.",
+            "Apply broad-spectrum organic or copper fungicide early.",
+            "Keep organic mulch around stems to stop spores from splashing.",
+            "Stake plants off the ground and avoid overhead sprinkling.",
+        ],
+    },
+    "Tomato Spider Mites": {
+        "status": "⚠️ Tomato Spider Mites Infestation",
+        "color": "#f97316",
+        "tips": [
+            "Spray undersides of leaves with insecticidal soap or horticultural oil.",
+            "Introduce natural beneficial predators such as Phytoseiulus persimilis.",
+            "Mist plants lightly during hot, dry weather to discourage mite breeding.",
+            "Remove and discard heavily webbed branches.",
+        ],
+    },
+    "Tomato Target Spot": {
+        "status": "⚠️ Tomato Target Spot Detected",
+        "color": "#f59e0b",
+        "tips": [
+            "Remove lower foliage showing target-like concentric lesions.",
+            "Apply azoxystrobin, pyraclostrobin, or chlorothalonil fungicides.",
+            "Ensure plants have adequate air spacing and row orientation.",
+            "Control weeds around planting beds that host Corynespora spores.",
+        ],
+    },
+    "Tomato Yellow Leaf Curl Virus": {
+        "status": "🔴 Tomato Yellow Leaf Curl Virus (TYLCV) Detected",
+        "color": "#ef4444",
+        "tips": [
+            "Transmitted by Silverleaf Whiteflies: Control the insect vector.",
+            "Install yellow sticky traps and spray neem oil or pyrethrin for whiteflies.",
+            "Uproot and destroy infected stunted/cupped plants to reduce vector reservoir.",
+            "Use insect netting or floating row covers in early season.",
+            "Select TYLCV-resistant hybrids for subsequent plantings.",
         ],
     },
 }
@@ -252,6 +352,11 @@ def inject_css():
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 @st.cache_resource(show_spinner=False)
+def _load_keras_file(model_path: str, mtime: float):
+    import tensorflow as tf
+    return tf.keras.models.load_model(model_path)
+
+
 def load_model():
     """
     Try to load the trained Keras model.
@@ -261,8 +366,8 @@ def load_model():
     if not os.path.exists(model_path):
         return None, False
     try:
-        import tensorflow as tf  # import deferred so app starts without TF
-        model = tf.keras.models.load_model(model_path)
+        mtime = os.path.getmtime(model_path)
+        model = _load_keras_file(model_path, mtime)
         return model, True
     except Exception as exc:
         st.error(f"Model file found but could not be loaded: {exc}")
@@ -428,7 +533,7 @@ def main():
           <h1>🌿 LeafGuard AI</h1>
           <p>Early Plant Disease Detection Using Deep Learning<br>
           <span style="font-size:0.95rem; color:#6ee7b7;">
-            Upload a leaf image to detect diseases in tomato and potato plants.
+            Upload a leaf image to detect diseases across Bell Pepper, Potato, and Tomato plants.
           </span>
           </p>
         </div>
@@ -440,7 +545,7 @@ def main():
     c1, c2, c3, c4 = st.columns(4)
     with c1:
         st.markdown(
-            '<div class="metric-card"><div class="metric-value">6</div>'
+            '<div class="metric-card"><div class="metric-value">15</div>'
             '<div class="metric-label">Disease Classes</div></div>',
             unsafe_allow_html=True,
         )

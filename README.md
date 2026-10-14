@@ -20,13 +20,22 @@ A beginner-friendly deep learning mini-project that detects plant diseases from 
 | 🚧 Demo Mode | Clearly labelled simulated predictions when model is absent |
 | ⚠️ Disclaimer | Prominent experimental-results warning |
 
-**Supported Classes**
-1. Healthy
-2. Tomato Early Blight
-3. Tomato Late Blight
-4. Tomato Leaf Mold
-5. Potato Early Blight
-6. Potato Late Blight
+**Supported Classes (15 Disease Categories)**
+1. Pepper Bell Bacterial Spot
+2. Pepper Bell Healthy
+3. Potato Early Blight
+4. Potato Healthy
+5. Potato Late Blight
+6. Tomato Bacterial Spot
+7. Tomato Early Blight
+8. Tomato Healthy
+9. Tomato Late Blight
+10. Tomato Leaf Mold
+11. Tomato Mosaic Virus
+12. Tomato Septoria Leaf Spot
+13. Tomato Spider Mites
+14. Tomato Target Spot
+15. Tomato Yellow Leaf Curl Virus
 
 ---
 
@@ -34,19 +43,13 @@ A beginner-friendly deep learning mini-project that detects plant diseases from 
 
 ```
 leafguard AI/
-├── app.py               ← Streamlit web application
+├── app.py               ← Streamlit web application (15 classes)
 ├── train_model.py       ← CNN training script
 ├── requirements.txt     ← Python dependencies
-├── README.md            ← This file
-├── dataset/             ← (you create this) labelled image folders
-│   ├── Healthy/
-│   ├── Tomato Early Blight/
-│   ├── Tomato Late Blight/
-│   ├── Tomato Leaf Mold/
-│   ├── Potato Early Blight/
-│   └── Potato Late Blight/
-├── leafguard_model.keras  ← (generated after training)
-└── training_curves.png    ← (generated after training)
+├── README.md            ← Setup & documentation
+├── dataset/             ← 15 labelled plant disease folders (8,325 images)
+├── leafguard_model.keras  ← Trained 15-class CNN model
+└── training_curves.png    ← Generated after training
 ```
 
 ---

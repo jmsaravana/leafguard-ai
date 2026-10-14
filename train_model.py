@@ -84,12 +84,21 @@ SEED        = 42           # Random seed for reproducibility
 MODEL_PATH  = "leafguard_model.keras"
 
 CLASS_NAMES = [
-    "Healthy",
+    "Pepper Bell Bacterial Spot",
+    "Pepper Bell Healthy",
+    "Potato Early Blight",
+    "Potato Healthy",
+    "Potato Late Blight",
+    "Tomato Bacterial Spot",
     "Tomato Early Blight",
+    "Tomato Healthy",
     "Tomato Late Blight",
     "Tomato Leaf Mold",
-    "Potato Early Blight",
-    "Potato Late Blight",
+    "Tomato Mosaic Virus",
+    "Tomato Septoria Leaf Spot",
+    "Tomato Spider Mites",
+    "Tomato Target Spot",
+    "Tomato Yellow Leaf Curl Virus",
 ]
 
 
@@ -97,7 +106,7 @@ CLASS_NAMES = [
 def verify_dataset(dataset_dir: str, class_names: list[str]) -> None:
     """Check that each expected class folder exists and has images."""
     found_classes = sorted(os.listdir(dataset_dir))
-    print("\n── Dataset Verification ──────────────────────────────────────")
+    print("\n-- Dataset Verification --------------------------------------")
     errors = []
     for cls in class_names:
         cls_path = os.path.join(dataset_dir, cls)
@@ -109,13 +118,13 @@ def verify_dataset(dataset_dir: str, class_names: list[str]) -> None:
             if f.lower().endswith((".jpg", ".jpeg", ".png"))
         ]
         count = len(images)
-        warning = " ⚠️  (< 50 images — consider adding more)" if count < 50 else ""
-        print(f"  ✓  {cls:<30} {count:>5} images{warning}")
+        warning = " [!] (< 50 images - consider adding more)" if count < 50 else ""
+        print(f"  [OK] {cls:<30} {count:>5} images{warning}")
 
     # Warn about extra folders (not fatal)
     for folder in found_classes:
         if folder not in class_names:
-            print(f"  ℹ️  Extra folder ignored: {folder}")
+            print(f"  [i] Extra folder ignored: {folder}")
 
     if errors:
         print("\nERRORS:")
@@ -124,14 +133,14 @@ def verify_dataset(dataset_dir: str, class_names: list[str]) -> None:
         print("\nPlease fix the above issues and re-run train_model.py")
         sys.exit(1)
 
-    print("─" * 65)
+    print("-" * 65)
 
 
 verify_dataset(DATASET_DIR, CLASS_NAMES)
 
 
-# ── Data loaders ──────────────────────────────────────────────────────────────
-print("\n── Loading Dataset ───────────────────────────────────────────")
+# -- Data loaders --------------------------------------------------------------
+print("\n-- Loading Dataset -------------------------------------------")
 
 # Training split
 train_ds = tf.keras.utils.image_dataset_from_directory(
@@ -280,10 +289,10 @@ callbacks = [
 ]
 
 
-# ── Training ───────────────────────────────────────────────────────────────────
-print("\n── Training ──────────────────────────────────────────────────")
+# -- Training -------------------------------------------------------------------
+print("\n-- Training --------------------------------------------------")
 print(f"Max epochs: {EPOCHS}  |  Batch size: {BATCH_SIZE}  |  Validation split: {VAL_SPLIT}")
-print("─" * 65)
+print("-" * 65)
 
 history = model.fit(
     train_ds,
@@ -294,17 +303,17 @@ history = model.fit(
 )
 
 
-# ── Final evaluation ───────────────────────────────────────────────────────────
-print("\n── Final Evaluation on Validation Set ───────────────────────")
+# -- Final evaluation -----------------------------------------------------------
+print("\n-- Final Evaluation on Validation Set -----------------------")
 val_loss, val_acc = model.evaluate(val_ds, verbose=0)
 print(f"  Validation Loss:     {val_loss:.4f}")
 print(f"  Validation Accuracy: {val_acc * 100:.2f}%")
 
 
-# ── Plot training curves ──────────────────────────────────────────────────────
+# -- Plot training curves ------------------------------------------------------
 def plot_history(history, save_path: str = "training_curves.png"):
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-    fig.suptitle("LeafGuard AI — Training History", fontsize=14, fontweight="bold")
+    fig.suptitle("LeafGuard AI - Training History", fontsize=14, fontweight="bold")
 
     # Accuracy
     axes[0].plot(history.history["accuracy"],     label="Train Accuracy", color="#16a34a")
@@ -326,12 +335,12 @@ def plot_history(history, save_path: str = "training_curves.png"):
 
     plt.tight_layout()
     plt.savefig(save_path, dpi=150)
-    print(f"\nTraining curves saved → {save_path}")
+    print(f"\nTraining curves saved -> {save_path}")
 
 
 plot_history(history)
 
 print("\n" + "=" * 65)
-print(f"✅ Model saved → {MODEL_PATH}")
+print(f"[OK] Model saved -> {MODEL_PATH}")
 print("   Launch the app with:  streamlit run app.py")
 print("=" * 65)
