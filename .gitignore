@@ -1,0 +1,35 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+.env/
+.venv/
+
+# Dataset (large — do not push to GitHub)
+dataset/
+
+# Trained model (large — do not push; train locally or via Kaggle)
+leafguard_model.keras
+*.h5
+*.pb
+
+# Training outputs
+training_curves.png
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
