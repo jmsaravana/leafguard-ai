@@ -474,12 +474,158 @@ def render_prediction(class_name: str, confidence: float, demo_mode: bool):
     )
 
 
+# ── Universal AI Botanist (Worldwide Leaf Doctor) ─────────────────────────────
+import base64
+import json
+import io
+import requests
+
+def analyze_leaf_universal(image: Image.Image, api_key: str):
+    """
+    Universal Plant Doctor powered by Gemini Vision AI.
+    Capable of recognizing any plant/leaf species worldwide and diagnosing diseases.
+    """
+    buffered = io.BytesIO()
+    image.convert("RGB").save(buffered, format="JPEG", quality=90)
+    img_b64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+
+    prompt = """
+You are an expert global agricultural botanist and plant pathologist.
+Analyze this leaf image carefully. Identify what plant it is and detect if it has any disease, pest infestation, fungal infection, nutrient deficiency, or if it is healthy.
+
+Respond ONLY with valid JSON in this exact structure:
+{
+  "plant_name": "Common Plant Name",
+  "botanical_name": "Scientific Latin Name",
+  "is_leaf": true,
+  "health_status": "Healthy / Bacterial / Fungal / Viral / Pest Infestation / Nutrient Deficiency",
+  "condition_name": "Specific condition or disease name, or 'Healthy'",
+  "confidence": 0.95,
+  "summary": "Brief 1-2 sentence overall diagnosis.",
+  "symptoms": ["Symptom observed 1", "Symptom observed 2"],
+  "causes": ["Possible cause 1", "Possible cause 2"],
+  "organic_treatment": ["Organic remedy 1", "Organic remedy 2"],
+  "chemical_treatment": ["Chemical fungicide/pesticide 1", "Chemical fungicide/pesticide 2"],
+  "prevention_tips": ["Prevention tip 1", "Prevention tip 2"]
+}
+"""
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"inline_data": {"mime_type": "image/jpeg", "data": img_b64}},
+                    {"text": prompt}
+                ]
+            }
+        ],
+        "generationConfig": {
+            "response_mime_type": "application/json",
+            "temperature": 0.2
+        }
+    }
+
+    resp = requests.post(url, json=payload, timeout=30)
+    if resp.status_code != 200:
+        raise RuntimeError(f"API Error ({resp.status_code}): {resp.text}")
+
+    data = resp.json()
+    text = data["candidates"][0]["content"]["parts"][0]["text"]
+    return json.loads(text)
+
+
+def render_universal_prediction(result: dict):
+    """Renders a rich breakdown for any leaf in the world analyzed by Vision AI."""
+    status = result.get("health_status", "Healthy")
+    is_healthy = "healthy" in status.lower()
+    theme_color = "#22c55e" if is_healthy else "#ef4444" if "viral" in status.lower() or "late blight" in str(result.get("condition_name")).lower() else "#f59e0b"
+
+    st.markdown(
+        f"""
+        <div class="pred-card">
+          <div style="font-size:0.9rem; color:#86efac; text-transform:uppercase; letter-spacing:0.08em;">
+            🌿 Identified Plant
+          </div>
+          <div style="font-size:1.6rem; font-weight:700; color:#4ade80;">
+            {result.get('plant_name', 'Unknown Plant')}
+            <span style="font-size:1rem; font-style:italic; color:#a7f3d0; font-weight:400;">({result.get('botanical_name', '')})</span>
+          </div>
+          <div style="margin-top:0.8rem; font-size:1.3rem; font-weight:600; color:{theme_color};">
+            {'✅ ' if is_healthy else '⚠️ '}{result.get('condition_name', status)}
+          </div>
+          <p style="margin-top:0.4rem; color:#d1fae5; font-size:0.95rem;">
+            {result.get('summary', '')}
+          </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Confidence bar
+    confidence = float(result.get("confidence", 0.9))
+    st.markdown("#### 📊 Detection Confidence")
+    render_confidence_bar(confidence)
+    st.markdown(
+        f"<span style='color:#4ade80; font-size:1.3rem; font-weight:600;'>{confidence*100:.1f}%</span>",
+        unsafe_allow_html=True,
+    )
+
+    # Symptoms & Causes
+    symptoms = result.get("symptoms", [])
+    causes = result.get("causes", [])
+    if symptoms or causes:
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown("#### 🔍 Observed Symptoms")
+            for s in symptoms:
+                st.markdown(f'<div class="precaution-item">• {s}</div>', unsafe_allow_html=True)
+        with c2:
+            st.markdown("#### 🌾 Probable Causes")
+            for c in causes:
+                st.markdown(f'<div class="precaution-item">• {c}</div>', unsafe_allow_html=True)
+
+    # Treatments
+    organic = result.get("organic_treatment", [])
+    chemical = result.get("chemical_treatment", [])
+    if organic or chemical:
+        st.markdown("#### 💊 Recommended Treatments")
+        t1, t2 = st.columns(2)
+        with t1:
+            st.markdown("<strong style='color:#86efac;'>🌱 Organic & Natural:</strong>", unsafe_allow_html=True)
+            for item in organic:
+                st.markdown(f'<div class="precaution-item">• {item}</div>', unsafe_allow_html=True)
+        with t2:
+            st.markdown("<strong style='color:#f87171;'>🧪 Chemical / Fungicidal:</strong>", unsafe_allow_html=True)
+            for item in chemical:
+                st.markdown(f'<div class="precaution-item">• {item}</div>', unsafe_allow_html=True)
+
+    # Prevention
+    tips = result.get("prevention_tips", [])
+    if tips:
+        st.markdown("#### 🛡️ Long-term Prevention Tips")
+        for tip in tips:
+            st.markdown(f'<div class="precaution-item">• {tip}</div>', unsafe_allow_html=True)
+
+    st.markdown(
+        """
+        <div class="warning-banner">
+          ⚠️ <strong>Disclaimer:</strong> Predictions made by this tool are
+          <strong>experimental</strong> and intended for educational purposes only.
+          Always consult a professional agricultural officer before taking large-scale crop actions.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+
 # ── Main application ───────────────────────────────────────────────────────────
 
 def main():
     inject_css()
 
-    # ── Load (or skip) model ─────────────────────────────────────────────────
+    # ── Load (or skip) local CNN model ───────────────────────────────────────
     model, model_loaded = load_model()
 
     # ── Sidebar ──────────────────────────────────────────────────────────────
@@ -487,88 +633,161 @@ def main():
         st.markdown("## 🌿 LeafGuard AI")
         st.markdown("---")
 
-        if model_loaded:
-            st.success("✅ Trained model loaded")
-        else:
-            st.warning("⚠️ No model found — running in **Demo Mode**")
-            st.markdown(
-                """
-                **To enable real predictions:**
-                1. Prepare your dataset in `dataset/` with one folder per class.
-                2. Run the training script:
-                   ```
-                   python train_model.py
-                   ```
-                3. Restart this app after training.
-                """
-            )
-
-        st.markdown("---")
-        st.markdown("### 📋 Supported Classes")
-        for cls in CLASS_NAMES:
-            icon = "✅" if cls == "Healthy" else "🍃"
-            st.markdown(f"{icon} {cls}")
-
-        st.markdown("---")
-        st.markdown("### ℹ️ How to Use")
-        st.markdown(
-            """
-            1. Upload a clear photo of a **single leaf**.
-            2. Make sure the leaf is the main subject.
-            3. Click **Analyse Leaf** to get a prediction.
-            4. Read the precautions carefully.
-            """
+        st.markdown("### ⚙️ Select Detection Engine")
+        engine_mode = st.radio(
+            label="Engine Mode",
+            options=[
+                "🌐 Universal AI Botanist (Any Leaf in the World)",
+                "⚡ Offline CNN Specialist (15 Agricultural Classes)",
+            ],
+            index=0,
+            label_visibility="collapsed",
+            help="Choose between Worldwide Vision AI (any plant) or the local offline CNN."
         )
 
         st.markdown("---")
+
+        if "Universal" in engine_mode:
+            st.markdown("### 🔑 Vision AI Setup")
+            default_key = os.environ.get("GEMINI_API_KEY", "")
+            api_key = st.text_input(
+                "Google Gemini API Key",
+                value=default_key,
+                type="password",
+                help="Get a 100% free API key from Google AI Studio (no credit card needed).",
+            )
+            st.markdown(
+                """
+                <small style="color:#86efac;">
+                  ✨ <strong>Need a free API key?</strong><br>
+                  1. Visit <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#4ade80; text-decoration:underline;">Google AI Studio</a>.<br>
+                  2. Click <em>Create API Key</em>.<br>
+                  3. Paste it above for instant worldwide leaf detection!
+                </small>
+                """,
+                unsafe_allow_html=True,
+            )
+            st.markdown("---")
+            st.markdown("### 🌍 Universal Capabilities")
+            st.markdown(
+                """
+                - 🌿 **390,000+** Plant Species
+                - 🔬 **Fungi, Bacteria, Viruses, Pests & Deficiencies**
+                - 🥭 Tropical, Medicinal, Houseplants, Crops & Trees
+                - 💊 Tailored Organic & Chemical Treatments
+                """
+            )
+        else:
+            if model_loaded:
+                st.success("✅ 15-Class CNN Model Loaded")
+            else:
+                st.warning("⚠️ No model found — running in **Demo Mode**")
+                st.markdown(
+                    """
+                    **To train the model:**
+                    ```
+                    python train_model.py
+                    ```
+                    """
+                )
+
+            st.markdown("### 📋 Supported Classes (15)")
+            for cls in CLASS_NAMES:
+                icon = "✅" if "Healthy" in cls else "🍃"
+                st.markdown(f"{icon} <small>{cls}</small>", unsafe_allow_html=True)
+
+        st.markdown("---")
         st.markdown(
-            "<small style='color:#6b7280;'>LeafGuard AI • Educational Project</small>",
+            "<small style='color:#6b7280;'>LeafGuard AI • Universal Plant Intelligence</small>",
             unsafe_allow_html=True,
         )
 
     # ── Hero banner ───────────────────────────────────────────────────────────
-    st.markdown(
-        """
-        <div class="hero-banner">
-          <h1>🌿 LeafGuard AI</h1>
-          <p>Early Plant Disease Detection Using Deep Learning<br>
-          <span style="font-size:0.95rem; color:#6ee7b7;">
-            Upload a leaf image to detect diseases across Bell Pepper, Potato, and Tomato plants.
-          </span>
-          </p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    if "Universal" in engine_mode:
+        st.markdown(
+            """
+            <div class="hero-banner">
+              <h1>🌿 LeafGuard AI — Universal Edition</h1>
+              <p>Worldwide Plant & Leaf Disease Detection Powered by Vision AI<br>
+              <span style="font-size:0.95rem; color:#6ee7b7;">
+                Upload a leaf from <strong>any plant on Earth</strong> (Rose, Neem, Mango, Tulsi, Trees, Crops, Herbs, Flowers) for instant botanical identification and disease diagnosis.
+              </span>
+              </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-    # ── Stats row ─────────────────────────────────────────────────────────────
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            st.markdown(
+                '<div class="metric-card"><div class="metric-value">390K+</div>'
+                '<div class="metric-label">Plant Species</div></div>',
+                unsafe_allow_html=True,
+            )
+        with c2:
+            st.markdown(
+                '<div class="metric-card"><div class="metric-value">Worldwide</div>'
+                '<div class="metric-label">Any Leaf On Earth</div></div>',
+                unsafe_allow_html=True,
+            )
+        with c3:
+            st.markdown(
+                '<div class="metric-card"><div class="metric-value">Vision AI</div>'
+                '<div class="metric-label">Multimodal Brain</div></div>',
+                unsafe_allow_html=True,
+            )
+        with c4:
+            has_key = bool(api_key.strip())
+            badge_icon = "🟢" if has_key else "🟡"
+            badge_text = "Key Active" if has_key else "Key Required"
+            st.markdown(
+                f'<div class="metric-card"><div class="metric-value">{badge_icon}</div>'
+                f'<div class="metric-label">{badge_text}</div></div>',
+                unsafe_allow_html=True,
+            )
+    else:
         st.markdown(
-            '<div class="metric-card"><div class="metric-value">15</div>'
-            '<div class="metric-label">Disease Classes</div></div>',
+            """
+            <div class="hero-banner">
+              <h1>🌿 LeafGuard AI — Offline CNN Specialist</h1>
+              <p>High-Speed Local Neural Network for Agricultural Crops<br>
+              <span style="font-size:0.95rem; color:#6ee7b7;">
+                Specialized edge CNN model trained on 15 disease categories across Bell Pepper, Potato, and Tomato.
+              </span>
+              </p>
+            </div>
+            """,
             unsafe_allow_html=True,
         )
-    with c2:
-        st.markdown(
-            '<div class="metric-card"><div class="metric-value">224px</div>'
-            '<div class="metric-label">Input Resolution</div></div>',
-            unsafe_allow_html=True,
-        )
-    with c3:
-        st.markdown(
-            '<div class="metric-card"><div class="metric-value">CNN</div>'
-            '<div class="metric-label">Model Architecture</div></div>',
-            unsafe_allow_html=True,
-        )
-    with c4:
-        mode_label = "Live Model" if model_loaded else "Demo Mode"
-        mode_icon = "🟢" if model_loaded else "🟡"
-        st.markdown(
-            f'<div class="metric-card"><div class="metric-value">{mode_icon}</div>'
-            f'<div class="metric-label">{mode_label}</div></div>',
-            unsafe_allow_html=True,
-        )
+
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            st.markdown(
+                '<div class="metric-card"><div class="metric-value">15</div>'
+                '<div class="metric-label">Disease Classes</div></div>',
+                unsafe_allow_html=True,
+            )
+        with c2:
+            st.markdown(
+                '<div class="metric-card"><div class="metric-value">224px</div>'
+                '<div class="metric-label">Input Resolution</div></div>',
+                unsafe_allow_html=True,
+            )
+        with c3:
+            st.markdown(
+                '<div class="metric-card"><div class="metric-value">CNN</div>'
+                '<div class="metric-label">Edge Architecture</div></div>',
+                unsafe_allow_html=True,
+            )
+        with c4:
+            mode_label = "Live Model" if model_loaded else "Demo Mode"
+            mode_icon = "🟢" if model_loaded else "🟡"
+            st.markdown(
+                f'<div class="metric-card"><div class="metric-value">{mode_icon}</div>'
+                f'<div class="metric-label">{mode_label}</div></div>',
+                unsafe_allow_html=True,
+            )
 
     st.markdown("---")
 
@@ -576,23 +795,25 @@ def main():
     left_col, right_col = st.columns([1, 1], gap="large")
 
     with left_col:
+        upload_help = "Upload a photo of ANY plant or tree leaf." if "Universal" in engine_mode else "Upload a Bell Pepper, Potato, or Tomato leaf."
         st.markdown("### 📤 Upload Leaf Image")
         uploaded_file = st.file_uploader(
             label="Choose a JPG, JPEG, or PNG image of a plant leaf",
             type=["jpg", "jpeg", "png"],
-            help="For best results use a clear, well-lit photo with the leaf as the main subject.",
+            help=upload_help,
         )
 
         if uploaded_file is not None:
             image = Image.open(uploaded_file)
             st.image(image, caption="Uploaded Leaf Image", use_container_width=True)
             st.markdown(
-                f"<small style='color:#6ee7b7;'>📐 Original size: {image.width} × {image.height} px → resized to 224 × 224 for inference</small>",
+                f"<small style='color:#6ee7b7;'>📐 Original size: {image.width} × {image.height} px</small>",
                 unsafe_allow_html=True,
             )
 
+            btn_label = "🔍 Diagnose Any Leaf (Universal AI)" if "Universal" in engine_mode else "🔍 Analyse Leaf (Local CNN)"
             analyse_btn = st.button(
-                "🔍 Analyse Leaf",
+                btn_label,
                 type="primary",
                 use_container_width=True,
             )
@@ -604,17 +825,38 @@ def main():
         st.markdown("### 🧠 Analysis Results")
 
         if uploaded_file is not None and analyse_btn:
-            with st.spinner("Preprocessing image and running inference …"):
-                img_array = preprocess_image(image)
-
-                if model_loaded:
-                    class_name, confidence = predict_real(model, img_array)
-                    demo_mode = False
+            if "Universal" in engine_mode:
+                if not api_key.strip():
+                    st.warning("⚠️ **Gemini API Key Required for Universal Mode**")
+                    st.markdown(
+                        """
+                        To identify **any plant in the world**, LeafGuard connects to Google's Vision AI:
+                        1. Get your 100% free key at **[aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)** (takes 30 seconds).
+                        2. Paste it into the sidebar input **Google Gemini API Key**.
+                        3. Click **Diagnose Any Leaf** again!
+                        
+                        *(Or switch to the **Offline CNN Model** in the sidebar to run without an API key!)*
+                        """
+                    )
                 else:
-                    class_name, confidence = predict_demo(img_array)
-                    demo_mode = True
+                    with st.spinner("🤖 Scanning leaf with Universal Vision AI across 390,000+ species…"):
+                        try:
+                            result = analyze_leaf_universal(image, api_key.strip())
+                            render_universal_prediction(result)
+                        except Exception as e:
+                            st.error(f"Universal Analysis Failed: {e}")
+                            st.info("Tip: Verify your API key has quota enabled at aistudio.google.com.")
+            else:
+                with st.spinner("Preprocessing image and running CNN inference …"):
+                    img_array = preprocess_image(image)
+                    if model_loaded:
+                        class_name, confidence = predict_real(model, img_array)
+                        demo_mode = False
+                    else:
+                        class_name, confidence = predict_demo(img_array)
+                        demo_mode = True
 
-            render_prediction(class_name, confidence, demo_mode)
+                render_prediction(class_name, confidence, demo_mode)
 
         elif uploaded_file is not None:
             st.markdown(
@@ -627,11 +869,12 @@ def main():
                 unsafe_allow_html=True,
             )
         else:
+            hint_text = "Upload any plant leaf in the world to get species identification and treatment plan." if "Universal" in engine_mode else "Upload a leaf to classify diseases across 15 agricultural classes."
             st.markdown(
-                """
+                f"""
                 <div style="color:#6b7280; padding:2rem; text-align:center;
                             border:1px dashed #374151; border-radius:12px;">
-                  Results will appear here after you upload an image.
+                  {hint_text}
                 </div>
                 """,
                 unsafe_allow_html=True,
